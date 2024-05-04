@@ -16,6 +16,9 @@ func HandleError(e error) {
 }
 
 func WriteJsonToFile(file string, fileData any) {
+
+	// CAUTION : This function rewrites the file contents fully
+
 	f, err := os.Create(file)
 	if err != nil {
 		HandleError(err)

@@ -23,3 +23,5 @@ go.work
 data/
 
 Taguh-Excalidraw.excalidraw
+data/tags.json
+data/taguh.json

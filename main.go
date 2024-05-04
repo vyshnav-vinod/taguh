@@ -14,10 +14,6 @@ const (
 	DbFileName   = "data/taguh.json"
 )
 
-var (
-	Tags map[string]TagDbSchema
-)
-
 type FileData struct {
 
 	/*
@@ -68,7 +64,6 @@ func main() {
 		NOTE: Use for range to iterate through the map
 	*/
 
-	Tags = getTags()
 	Cli()
 
 }
