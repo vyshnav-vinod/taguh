@@ -32,8 +32,8 @@ type FileData struct {
 		...
 	*/
 
-	Tags      []string  `json:"tags"`
-	CreatedOn time.Time `json:"created_on"`
+	Tags      string `json:"tags"`
+	CreatedOn string `json:"created_on"`
 }
 
 type TagDbSchema struct {
@@ -132,4 +132,32 @@ func _createBaseTags() {
 	if err != nil {
 		HandleError(err)
 	}
+}
+
+func getDBVal() map[string]FileData {
+	dbVal, err := os.ReadFile(DbFileName)
+	if err != nil {
+		HandleError(err)
+	}
+	// Below parses the taguh.json into a map (dbMap)
+	dbMap := make(map[string]FileData)
+	handlerFunc := func(key []byte, value []byte, datatype jsonparser.ValueType, offset int) error {
+		keyTmp := string(key)
+		tmp := make(map[string]string)
+		jsonparser.ObjectEach(value, func(key []byte, value []byte, datatype jsonparser.ValueType, offset int) error {
+			tmp[string(key)] = string(value)
+			return nil
+		})
+		dbMap[keyTmp] = FileData{
+			Tags:      tmp["tags"],
+			CreatedOn: tmp["created_on"],
+		}
+		return nil
+	}
+	// Goes through each JSON object and calls the handlerFunc
+	err = jsonparser.ObjectEach(dbVal, handlerFunc)
+	if err != nil {
+		HandleError(err)
+	}
+	return dbMap
 }

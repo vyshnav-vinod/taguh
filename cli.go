@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/alexflint/go-arg"
@@ -40,7 +41,22 @@ func Cli() {
 			}
 			WriteJsonToFile(TagsFileName, Tags)
 
+		} else {
+			// Add a file to the DB
+			if len(addArgs) < 2 {
+				_subCommandUsage("add")
+			}
+			// TODO: Check if file path and tags exists
+			fileName := addArgs[0]
+			tags := addArgs[1:]
+			db := getDBVal()
+			db[fileName] = FileData{
+				Tags:      strings.Join(tags, ","),
+				CreatedOn: time.Now().Format("2006-01-02 15:04:05"),
+			}
+			WriteJsonToFile(DbFileName, db)
 		}
+
 	}
 }
 
