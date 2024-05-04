@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
+	// "fmt"
 	"os"
 	"time"
 
@@ -12,6 +12,10 @@ import (
 const (
 	TagsFileName = "data/tags.json"
 	DbFileName   = "data/taguh.json"
+)
+
+var (
+	Tags map[string]TagDbSchema
 )
 
 type FileData struct {
@@ -57,13 +61,16 @@ func main() {
 		Then execute the command given by the CLI
 		Load the DB only when called?
 	*/
+	/*
+		To access elements use tags[name].Description...
+		Example : To access Description of Starred, we use tags["Starred"].Description
+		NOTE: To check if a key is not present in a map, just try to access it
+		NOTE: Use for range to iterate through the map
+	*/
 
-	tags := getTags()
-	fmt.Println(tags)
-	// To access elements use tags[name].Description...
-	// Example : To access Description of Starred, we use tags["Starred"].Description
-	// NOTE: To check if a key is not present in a map, just try to access it
-	// NOTE: Use for range to iterate through the map
+	Tags = getTags()
+	Cli()
+
 }
 
 func getTags() map[string]TagDbSchema {
@@ -74,7 +81,7 @@ func getTags() map[string]TagDbSchema {
 	}
 	if len(tags) == 0 {
 		// If content of the tags.json was somehow removed, create a new tags.json
-		createBaseTags()
+		_createBaseTags()
 		tags, err = os.ReadFile(TagsFileName)
 		if err != nil {
 			HandleError(err)
@@ -104,7 +111,7 @@ func getTags() map[string]TagDbSchema {
 	return tagMap
 }
 
-func createBaseTags() {
+func _createBaseTags() {
 
 	// Creates tags.json with the base tags such as Starred, Important and Archived
 
