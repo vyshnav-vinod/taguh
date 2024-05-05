@@ -48,19 +48,21 @@ func Cli() {
 			if len(addArgs) < 2 {
 				_subCommandUsage("add")
 			}
+			// TODO: Find a way for multiple files to be tagged at the same time (i.e using one command only)
 			fileName := addArgs[0]
 			tags := addArgs[1:]
-			if !DataValidate(fileName, "file"){
+			if !DataValidate(fileName, "file") {
 				HandleError(errors.New("file does not exists"))
 			}
-			if !DataValidate(strings.Join(tags, ","), "tag"){
-				// TODO: Validate when more than one tag is given
-				// TODO: Specifiy which tag was not found 
+			if !DataValidate(strings.Join(tags, ","), "tag") {
 				HandleError(errors.New("tag(s) not found"))
 			}
 			db := getDBVal() // Load the contents of the db to memory
+			// TODO: Extra comma is being added at the end of the tags.
+			// Happens when a new tag is added
 			db[fileName] = FileData{
-				Tags:      strings.Join(tags, ","),
+				// TODO: Check for tag redundancy
+				Tags:      strings.Join(tags, ",") + "," + db[fileName].Tags,
 				CreatedOn: time.Now().Format("2006-01-02 15:04:05"),
 			} // Append the new file to the in-memory db contents and then write to json once again
 			WriteJsonToFile(DbFileName, db)

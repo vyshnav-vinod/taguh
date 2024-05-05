@@ -71,6 +71,8 @@ func checkIfExists(f string) bool {
 func DataValidate(s string, t string) bool {
 	// s -> The content to validate
 	// t -> The type of content (file or tag)
+
+	// TODO: Return what tag was invalid
 	if strings.ToLower(t) == "file" {
 		if checkIfExists(s) {
 			return true
@@ -79,13 +81,31 @@ func DataValidate(s string, t string) bool {
 		}
 	} else if strings.ToLower(t) == "tag" {
 		tags := getTags()
+		if strings.Contains(s, ",") {
+			// More than one tag was provided by the user
+			tagsList := strings.Split(s, ",")
+			var count = 0
+			for _, tag := range tagsList {
+				for name := range tags {
+					if strings.EqualFold(tag, name) {
+						count++
+					}
+				}
+			}
+			if len(tagsList) == count { // Check if all the provided tags are valid
+				return true
+			} else {
+				return false
+			}
+		}
+
 		for name := range tags {
-			if s == name {
+			if strings.EqualFold(s, name) {
 				return true
 			}
 		}
 		return false
 	} else {
-		panic(fmt.Sprint("Type %s is not found\n", s))
+		panic(fmt.Sprintf("Type %s is not found. Please report!!", s))
 	}
 }
