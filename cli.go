@@ -65,3 +65,7 @@ func _subCommandUsage(cmd string) {
 	fmt.Fprintf(os.Stderr, "Please provide arguments. For usage : taguh %s -h\n", cmd)
 	os.Exit(1)
 }
+
+// TODO: First do the validations for the add commands
+// TODO: Then write tests
+// TODO: Then move to the next command

@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	// "fmt"
 	"os"
 	"time"
 
@@ -63,13 +62,12 @@ func main() {
 		NOTE: To check if a key is not present in a map, just try to access it
 		NOTE: Use for range to iterate through the map
 	*/
-
+	CheckDataFiles()
 	Cli()
 
 }
 
 func getTags() map[string]TagDbSchema {
-	// TODO: Check if file exists and if not, then create a new tags file with base tags
 	tags, err := os.ReadFile(TagsFileName)
 	if err != nil {
 		HandleError(err)
@@ -133,6 +131,9 @@ func getDBVal() map[string]FileData {
 	dbVal, err := os.ReadFile(DbFileName)
 	if err != nil {
 		HandleError(err)
+	}
+	if len(dbVal) == 0 {
+		return make(map[string]FileData)
 	}
 	// Below parses the taguh.json into a map (dbMap)
 	dbMap := make(map[string]FileData)
