@@ -108,7 +108,7 @@ func _createBaseTags() {
 
 	// Creates tags.json with the base tags such as Starred, Important and Archived
 
-	baseTags := map[string]string{"Starred": "Tag for favourite files", "Important": "Tag for important files", "Archived": "Tag for archived files or files that may not be used anymore"}
+	baseTags := map[string]string{"starred": "Tag for favourite files", "important": "Tag for important files", "archived": "Tag for archived files or files that may not be used anymore"}
 	tagsMap := make(map[string]*TagDbSchema)
 
 	for key, value := range baseTags {

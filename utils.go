@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"os"
 	"runtime"
+	"strings"
 )
 
 func HandleError(e error) {
@@ -35,19 +36,19 @@ func WriteJsonToFile(file string, fileData any) {
 }
 
 func CheckDataFiles() {
-	if !checkIFExists("data") {
+	if !checkIfExists("data") {
 		err := os.Mkdir("data", 0755)
 		if err != nil {
 			HandleError(err)
 		}
 	}
-	if !checkIFExists(TagsFileName) {
+	if !checkIfExists(TagsFileName) {
 		_, err := os.Create(TagsFileName)
 		if err != nil {
 			HandleError(err)
 		}
 	}
-	if !checkIFExists(DbFileName) {
+	if !checkIfExists(DbFileName) {
 		_, err := os.Create(DbFileName)
 		if err != nil {
 			HandleError(err)
@@ -55,7 +56,7 @@ func CheckDataFiles() {
 	}
 }
 
-func checkIFExists(f string) bool {
+func checkIfExists(f string) bool {
 	_, err := os.Stat(f)
 	if os.IsNotExist(err) {
 		return false
@@ -64,5 +65,27 @@ func checkIFExists(f string) bool {
 		return false
 	} else {
 		return true
+	}
+}
+
+func DataValidate(s string, t string) bool {
+	// s -> The content to validate
+	// t -> The type of content (file or tag)
+	if strings.ToLower(t) == "file" {
+		if checkIfExists(s) {
+			return true
+		} else {
+			return false
+		}
+	} else if strings.ToLower(t) == "tag" {
+		tags := getTags()
+		for name := range tags {
+			if s == name {
+				return true
+			}
+		}
+		return false
+	} else {
+		panic(fmt.Sprint("Type %s is not found\n", s))
 	}
 }

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -33,11 +34,11 @@ func Cli() {
 				_subCommandUsage("add")
 			}
 			tagName := addArgs[0]
-			tagDesc := addArgs[1]
+			tagDesc := addArgs[1:]
 			tags := getTags() // Load the tags  to memory
 
 			tags[tagName] = TagDbSchema{
-				Description: tagDesc,
+				Description: strings.Join(tagDesc, " "),
 				CreatedOn:   time.Now().Format("2006-01-02 15:04:05"),
 			} // Append the new tag to the in-memory tags and write to JSON once again
 			WriteJsonToFile(TagsFileName, tags)
@@ -47,9 +48,16 @@ func Cli() {
 			if len(addArgs) < 2 {
 				_subCommandUsage("add")
 			}
-			// TODO: Check if file path and tags exists
 			fileName := addArgs[0]
 			tags := addArgs[1:]
+			if !DataValidate(fileName, "file"){
+				HandleError(errors.New("file does not exists"))
+			}
+			if !DataValidate(strings.Join(tags, ","), "tag"){
+				// TODO: Validate when more than one tag is given
+				// TODO: Specifiy which tag was not found 
+				HandleError(errors.New("tag(s) not found"))
+			}
 			db := getDBVal() // Load the contents of the db to memory
 			db[fileName] = FileData{
 				Tags:      strings.Join(tags, ","),
