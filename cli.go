@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"slices"
 	"strings"
 	"time"
 
@@ -58,11 +59,38 @@ func Cli() {
 				HandleError(errors.New("tag(s) not found"))
 			}
 			db := getDBVal() // Load the contents of the db to memory
-			// TODO: Extra comma is being added at the end of the tags.
-			// Happens when a new tag is added
+
+			var tagsFinal string
+			// if there are no tags in the file(i.e file is new to db) -> do normal strings.Join() and remove the end comma
+			// if there are tags in the file -> check for redundancy and update with only the new tag
+
+			if len(db[fileName].Tags) == 0 {
+				// No tags exists for the file (i.e. File was not added to taguh)
+				tagsFinal = strings.Join(tags, ",")
+			} else {
+				// File already has tags
+				tagsFinal = db[fileName].Tags
+				existingTags := strings.Split(db[fileName].Tags, ",")
+				for _, i := range tags {
+					exists := false
+					for _, j := range existingTags {
+						if strings.EqualFold(i, j) {
+							exists = true
+						}
+					}
+					if exists {
+						tags = SlicePop(tags, slices.Index(tags, i))
+					}
+				}
+				if !(len(tags) == 0) {
+					// Join to tagsFinal only if there is a new tag, else
+					// the tags will be rewritten by itself
+					tagsFinal = tagsFinal + "," + strings.Join(tags, ",")
+				}
+			}
+
 			db[fileName] = FileData{
-				// TODO: Check for tag redundancy
-				Tags:      strings.Join(tags, ",") + "," + db[fileName].Tags,
+				Tags:      tagsFinal,
 				CreatedOn: time.Now().Format("2006-01-02 15:04:05"),
 			} // Append the new file to the in-memory db contents and then write to json once again
 			WriteJsonToFile(DbFileName, db)
@@ -76,6 +104,5 @@ func _subCommandUsage(cmd string) {
 	os.Exit(1)
 }
 
-// TODO: First do the validations for the add commands
 // TODO: Then write tests
 // TODO: Then move to the next command

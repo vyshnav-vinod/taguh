@@ -10,6 +10,7 @@ import (
 	"os"
 	"runtime"
 	"strings"
+
 )
 
 func HandleError(e error) {
@@ -108,4 +109,16 @@ func DataValidate(s string, t string) bool {
 	} else {
 		panic(fmt.Sprintf("Type %s is not found. Please report!!", s))
 	}
+}
+
+func SlicePop(slice []string, index int) []string{
+	// Remove an element of index from the slice
+	// *s = append((*s)[:index], (*s)[index+1:]...)
+	var tmp []string
+	for i, j := range slice{
+		if !(i == index){
+			tmp = append(tmp, j)
+		}
+	}
+	return tmp
 }
