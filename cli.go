@@ -16,8 +16,13 @@ type CmdAdd struct {
 	Tag  bool     `arg:"-t" help:"Use this flag to add a new tag. If this flag is used, the args should be of the form (tagname tagdescription)"`
 }
 
+type CmdList struct {
+	Type string `arg:"positional" help:"Should be either files or tags"`
+}
+
 var args struct {
-	Add *CmdAdd `arg:"subcommand:add" help:"Add a file/tag to taguh"`
+	Add  *CmdAdd  `arg:"subcommand:add" help:"Add a file/tag to taguh"`
+	List *CmdList `arg:"subcommand:list" help:"List all files/tags added to taguh"`
 }
 
 func Cli() {
@@ -96,6 +101,33 @@ func Cli() {
 			WriteJsonToFile(DbFileName, db)
 		}
 
+	case args.List != nil:
+		listType := args.List.Type
+		if len(listType) == 0 {
+			// No type was provided
+			_subCommandUsage("list")
+		}
+		switch strings.ToLower(listType) {
+		// Use colors/formats to better print the output
+		case "files":
+			db := getDBVal(DbFileName)
+			fmt.Printf("The list of files added to taguh :\n\n")
+			for name := range db {
+				fmt.Println(name)
+			}
+			fmt.Println()
+		case "tags":
+			fmt.Printf("The list of tags added to taguh :\n\n")
+			tags := getTags()
+			for tag := range tags {
+				fmt.Printf("%v: %v\n", tag, tags[tag].Description)
+			}
+			fmt.Println()
+		default:
+			fmt.Fprintln(os.Stderr, "Only accepted types are [files,tags]")
+			os.Exit(1)
+		}
+
 	}
 }
 
@@ -103,4 +135,3 @@ func _subCommandUsage(cmd string) {
 	fmt.Fprintf(os.Stderr, "Please provide arguments. For usage : taguh %s -h\n", cmd)
 	os.Exit(1)
 }
-
