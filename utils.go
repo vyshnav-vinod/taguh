@@ -10,7 +10,6 @@ import (
 	"os"
 	"runtime"
 	"strings"
-
 )
 
 func HandleError(e error) {
@@ -70,6 +69,8 @@ func checkIfExists(f string) bool {
 }
 
 func DataValidate(s string, t string) bool {
+	// Validate the file/tag
+
 	// s -> The content to validate
 	// t -> The type of content (file or tag)
 
@@ -111,12 +112,12 @@ func DataValidate(s string, t string) bool {
 	}
 }
 
-func SlicePop(slice []string, index int) []string{
+func SlicePop(slice []string, index int) []string {
 	// Remove an element of index from the slice
-	// *s = append((*s)[:index], (*s)[index+1:]...)
+	// TODO: Make this better, use the append based method??
 	var tmp []string
-	for i, j := range slice{
-		if !(i == index){
+	for i, j := range slice {
+		if !(i == index) {
 			tmp = append(tmp, j)
 		}
 	}

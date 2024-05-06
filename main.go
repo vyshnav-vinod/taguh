@@ -51,17 +51,6 @@ type TagDbSchema struct {
 
 func main() {
 
-	/*
-		Load the list of tags to memory and close tags.json
-		Then execute the command given by the CLI
-		Load the DB only when called?
-	*/
-	/*
-		To access elements use tags[name].Description...
-		Example : To access Description of Starred, we use tags["Starred"].Description
-		NOTE: To check if a key is not present in a map, just try to access it
-		NOTE: Use for range to iterate through the map
-	*/
 	CheckDataFiles()
 	Cli()
 
@@ -74,7 +63,7 @@ func getTags() map[string]TagDbSchema {
 	}
 	if len(tags) == 0 {
 		// If content of the tags.json was somehow removed, create a new tags.json
-		_createBaseTags()
+		_createBaseTags(TagsFileName)
 		tags, err = os.ReadFile(TagsFileName)
 		if err != nil {
 			HandleError(err)
@@ -104,7 +93,7 @@ func getTags() map[string]TagDbSchema {
 	return tagMap
 }
 
-func _createBaseTags() {
+func _createBaseTags(file string) {
 
 	// Creates tags.json with the base tags such as Starred, Important and Archived
 
@@ -121,14 +110,14 @@ func _createBaseTags() {
 	if err != nil {
 		HandleError(err)
 	}
-	err = os.WriteFile(TagsFileName, tagsJson, 0666)
+	err = os.WriteFile(file, tagsJson, 0666)
 	if err != nil {
 		HandleError(err)
 	}
 }
 
-func getDBVal() map[string]FileData {
-	dbVal, err := os.ReadFile(DbFileName)
+func getDBVal(file string) map[string]FileData {
+	dbVal, err := os.ReadFile(file)
 	if err != nil {
 		HandleError(err)
 	}

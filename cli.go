@@ -58,7 +58,7 @@ func Cli() {
 			if !DataValidate(strings.Join(tags, ","), "tag") {
 				HandleError(errors.New("tag(s) not found"))
 			}
-			db := getDBVal() // Load the contents of the db to memory
+			db := getDBVal(DbFileName) // Load the contents of the db to memory
 
 			var tagsFinal string
 			// if there are no tags in the file(i.e file is new to db) -> do normal strings.Join() and remove the end comma
@@ -104,5 +104,3 @@ func _subCommandUsage(cmd string) {
 	os.Exit(1)
 }
 
-// TODO: Then write tests
-// TODO: Then move to the next command
