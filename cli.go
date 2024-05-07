@@ -21,13 +21,16 @@ type CmdList struct {
 	Type string `arg:"positional" help:"Should be either files or tags"`
 }
 
-// type CmdFind struct{
-
-// }
+type CmdFind struct {
+	Type    string `arg:"positional" help:"Should be either file or tag"`
+	Arg     string `arg:"positional" help:"The filename or the tag name to find"`
+	Options string `arg:"positional" help:"If the type is tag, options are latest, oldest, asc and desc"`
+}
 
 var args struct {
 	Add  *CmdAdd  `arg:"subcommand:add" help:"Add a file/tag to taguh"`
 	List *CmdList `arg:"subcommand:list" help:"List all files/tags added to taguh"`
+	Find *CmdFind `arg:"subcommand:find" help:"If a tag is given, list all the files assosciated with that tag. Else list the path of the filename and its tag(s)"`
 }
 
 func Cli() {
@@ -111,6 +114,7 @@ func Cli() {
 		}
 
 	case args.List != nil:
+		// TODO: Add options here as well (sorted, oldest, latest, etc)
 		listType := args.List.Type
 		if len(listType) == 0 {
 			// No type was provided
@@ -136,6 +140,42 @@ func Cli() {
 		default:
 			fmt.Fprintln(os.Stderr, "Only accepted types are [files,tags]")
 			os.Exit(1)
+		}
+
+	case args.Find != nil:
+		findType := strings.ToLower(args.Find.Type)
+		findArg := args.Find.Arg
+		// findOpt := strings.ToLower(args.Find.Options)
+		if len(findType) == 0 || len(findArg) == 0 {
+			_subCommandUsage("find")
+		}
+		db := getDBVal(DbFileName)
+		_ = getTags()
+		if findType == "file" {
+			var resultFiles []string
+			for fpath := range db {
+				if strings.Contains(filepath.Base(fpath), findArg) {
+					// Maybe more than one files with same name (but different
+					// folders) may be found, so list them all to the user to choose
+					resultFiles = append(resultFiles, fpath)
+				}
+			}
+			if len(resultFiles) == 0 {
+				// TODO: Suggestions for similar file
+				fmt.Println("No such file found in taguh")
+				os.Exit(1)
+			} else {
+				// TODO: Make the output better
+				if len(resultFiles) == 1 {
+					// Only 1 file is found
+					PrintOutputFind(resultFiles[0], db[resultFiles[0]].Tags, db[resultFiles[0]].CreatedOn)
+				} else {
+					fmt.Printf("Found %d matching files\n", len(resultFiles))
+					for i := range resultFiles {
+						PrintOutputFind(resultFiles[i], db[resultFiles[i]].Tags, db[resultFiles[i]].CreatedOn)
+					}
+				}
+			}
 		}
 
 	}

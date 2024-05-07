@@ -123,3 +123,7 @@ func SlicePop(slice []string, index int) []string {
 	}
 	return tmp
 }
+
+func PrintOutputFind(path string, tags string, added string) {
+	fmt.Printf("\nFile path: %s\nTags: %s\nAdded on: %s\n", path, tags, added)
+}
