@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 	"slices"
 	"strings"
 	"time"
@@ -19,6 +20,10 @@ type CmdAdd struct {
 type CmdList struct {
 	Type string `arg:"positional" help:"Should be either files or tags"`
 }
+
+// type CmdFind struct{
+
+// }
 
 var args struct {
 	Add  *CmdAdd  `arg:"subcommand:add" help:"Add a file/tag to taguh"`
@@ -55,7 +60,10 @@ func Cli() {
 				_subCommandUsage("add")
 			}
 			// TODO: Find a way for multiple files to be tagged at the same time (i.e using one command only)
-			fileName := addArgs[0]
+			fileName, err := filepath.Abs(addArgs[0])
+			if err != nil {
+				HandleError(err)
+			}
 			tags := addArgs[1:]
 			if !DataValidate(fileName, "file") {
 				HandleError(errors.New("file does not exists"))
@@ -66,8 +74,6 @@ func Cli() {
 			db := getDBVal(DbFileName) // Load the contents of the db to memory
 
 			var tagsFinal string
-			// if there are no tags in the file(i.e file is new to db) -> do normal strings.Join() and remove the end comma
-			// if there are tags in the file -> check for redundancy and update with only the new tag
 
 			if len(db[fileName].Tags) == 0 {
 				// No tags exists for the file (i.e. File was not added to taguh)
@@ -91,6 +97,9 @@ func Cli() {
 					// Join to tagsFinal only if there is a new tag, else
 					// the tags will be rewritten by itself
 					tagsFinal = tagsFinal + "," + strings.Join(tags, ",")
+				} else {
+					fmt.Printf("%s is already added to taguh!!!\n", fileName)
+					os.Exit(0)
 				}
 			}
 
@@ -108,7 +117,8 @@ func Cli() {
 			_subCommandUsage("list")
 		}
 		switch strings.ToLower(listType) {
-		// Use colors/formats to better print the output
+		// TODO: Use colors/formats to better print the output
+		// TODO: If no files/tags are found, give a better output
 		case "files":
 			db := getDBVal(DbFileName)
 			fmt.Printf("The list of files added to taguh :\n\n")

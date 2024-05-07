@@ -69,11 +69,11 @@ func checkIfExists(f string) bool {
 }
 
 func DataValidate(s string, t string) bool {
-	// Validate the file/tag
-
-	// s -> The content to validate
-	// t -> The type of content (file or tag)
-
+	/*
+		Validate the file/tag
+		s -> The content to validate
+		t -> The type of content (file or tag)
+	*/
 	// TODO: Return what tag was invalid
 	if strings.ToLower(t) == "file" {
 		if checkIfExists(s) {
