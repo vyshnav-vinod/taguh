@@ -6,10 +6,12 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 	"runtime"
-	"slices"
+	"sort"
 	"strings"
 	"time"
 )
@@ -72,9 +74,9 @@ func checkIfExists(f string) bool {
 
 func DataValidate(s string, t string) bool {
 	/*
-		Validate the file/tag/option
+		Validate the file/tag
 		s -> The content to validate
-		t -> The type of content (file or tag or option)
+		t -> The type of content (file or tag)
 	*/
 	// TODO: Return what tag was invalid
 	if strings.ToLower(t) == "file" {
@@ -109,13 +111,6 @@ func DataValidate(s string, t string) bool {
 			}
 		}
 		return false
-	} else if strings.ToLower(t) == "option" {
-		currOptions := []string{"newest", "oldest", "asc", "desc"}
-		if slices.Contains(currOptions, strings.ToLower(s)) {
-			return true
-		} else {
-			return false
-		}
 	} else {
 		panic(fmt.Sprintf("Type %s is not found. Please report!!", s))
 	}
@@ -141,32 +136,37 @@ func PerformOptions(optionType string, s []string) []string {
 
 	// TODO: Make sorts more efficient
 	db := getDBVal(DbFileName)
-	switch optionType {
+	switch strings.ToLower(optionType) {
 	case "newest":
 		for i := range s {
-			for j := range i{
+			for j := range i {
 				time1, _ := time.Parse(DateParseLayout, db[s[j]].CreatedOn)
 				time2, _ := time.Parse(DateParseLayout, db[s[j+1]].CreatedOn)
-				if time1.Before(time2){
+				if time1.Before(time2) {
 					s[j], s[j+1] = s[j+1], s[j]
 				}
 			}
 		}
 	case "oldest":
 		for i := range s {
-			for j := range i{
+			for j := range i {
 				time1, _ := time.Parse(DateParseLayout, db[s[j]].CreatedOn)
 				time2, _ := time.Parse(DateParseLayout, db[s[j+1]].CreatedOn)
-				if time1.After(time2){
+				if time1.After(time2) {
 					s[j], s[j+1] = s[j+1], s[j]
 				}
 			}
 		}
-		
-		// case "oldest":
-		// case "asc":
-		// case "desc":
-		// default:
+	case "asc":
+		sort.SliceStable(s, func(i, j int) bool {
+			return filepath.Base(s[i]) < filepath.Base(s[j])
+		})
+	case "desc":
+		sort.SliceStable(s, func(i, j int) bool {
+			return filepath.Base(s[i]) > filepath.Base(s[j])
+		})
+	default:
+		HandleError(errors.New(fmt.Sprintf("option %s is invalid.", optionType)))
 	}
 	return s
 }

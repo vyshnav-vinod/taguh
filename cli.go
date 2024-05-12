@@ -202,12 +202,8 @@ func Cli() {
 				} else {
 					if len(options) != 0 {
 						// Do the sortings
-						if !DataValidate(options, "option") {
-							HandleError(errors.New(fmt.Sprintf("option %s does not exists", options)))
-						} else {
-							result = PerformOptions(options, result)
-							
-						}
+						// TODO: Option to sort by size
+						result = PerformOptions(options, result)
 					}
 					fmt.Printf("Found %d matching files\n", len(result))
 					for i := range result {
