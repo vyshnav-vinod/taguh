@@ -30,7 +30,7 @@ type CmdFind struct {
 var args struct {
 	Add  *CmdAdd  `arg:"subcommand:add" help:"Add a file/tag to taguh"`
 	List *CmdList `arg:"subcommand:list" help:"List all files/tags added to taguh"`
-	Find *CmdFind `arg:"subcommand:find" help:"If a tag is given, list all the files assosciated with that tag. Else list the path of the filename and its tag(s)"`
+	Find *CmdFind `arg:"subcommand:find" help:"If a tag is given, list all the files associated with that tag. Else list the path of the filename and its tag(s)"`
 }
 
 func Cli() {
@@ -150,8 +150,8 @@ func Cli() {
 			_subCommandUsage("find")
 		}
 		db := getDBVal(DbFileName)
-		_ = getTags()
-		if findType == "file" {
+		switch findType {
+		case "file":
 			var resultFiles []string
 			for fpath := range db {
 				if strings.Contains(filepath.Base(fpath), findArg) {
@@ -161,21 +161,55 @@ func Cli() {
 				}
 			}
 			if len(resultFiles) == 0 {
-				// TODO: Suggestions for similar file
+				// TODO: Suggestions for similar file [PRIORITY]
 				fmt.Println("No such file found in taguh")
 				os.Exit(1)
 			} else {
 				// TODO: Make the output better
 				if len(resultFiles) == 1 {
 					// Only 1 file is found
-					PrintOutputFind(resultFiles[0], db[resultFiles[0]].Tags, db[resultFiles[0]].CreatedOn)
+					PrintOutput(resultFiles[0], db[resultFiles[0]].Tags, db[resultFiles[0]].CreatedOn)
 				} else {
 					fmt.Printf("Found %d matching files\n", len(resultFiles))
 					for i := range resultFiles {
-						PrintOutputFind(resultFiles[i], db[resultFiles[i]].Tags, db[resultFiles[i]].CreatedOn)
+						PrintOutput(resultFiles[i], db[resultFiles[i]].Tags, db[resultFiles[i]].CreatedOn)
 					}
 				}
 			}
+		case "tag":
+			arg := args.Find.Arg
+			// options := args.Find.Options
+			var result []string
+
+			if !DataValidate(arg, "tag") {
+				HandleError(errors.New(fmt.Sprintf("Tag: %s not found", arg)))
+				// TODO: Suggest similar tags [PRIORITY]
+			}
+
+			for fname, fvalue := range db {
+				if strings.Contains(fvalue.Tags, strings.ToLower(arg)) {
+					result = append(result, fname)
+				}
+			}
+
+			if len(result) == 0 {
+				// TODO: Suggest similar tags [PRIORITY]
+				fmt.Println("No such file found in taguh")
+				os.Exit(1)
+			} else {
+				if len(result) == 1 {
+					PrintOutput(result[0], db[result[0]].Tags, db[result[0]].CreatedOn)
+				} else {
+					fmt.Printf("Found %d matching files\n", len(result))
+					for i := range result {
+						PrintOutput(result[i], db[result[i]].Tags, db[result[i]].CreatedOn)
+					}
+				}
+			}
+
+		default:
+			fmt.Fprintf(os.Stderr, "Invalid type %s", findType)
+			_subCommandUsage("list")
 		}
 
 	}
