@@ -11,6 +11,7 @@ import (
 	"runtime"
 	"slices"
 	"strings"
+	"time"
 )
 
 func HandleError(e error) {
@@ -136,14 +137,36 @@ func PrintOutput(path string, tags string, added string) {
 	fmt.Printf("\nFile path: %s\nTags: %s\nAdded on: %s\n", path, tags, added)
 }
 
-// func PerformOptions(optionType string, s *[]string) {
-// 	switch optionType {
-// 	case "newest":
+func PerformOptions(optionType string, s []string) []string {
 
-
-// 		// case "oldest":
-// 		// case "asc":
-// 		// case "desc":
-// 		// default:
-// 	}
-// }
+	// TODO: Make sorts more efficient
+	db := getDBVal(DbFileName)
+	switch optionType {
+	case "newest":
+		for i := range s {
+			for j := range i{
+				time1, _ := time.Parse(DateParseLayout, db[s[j]].CreatedOn)
+				time2, _ := time.Parse(DateParseLayout, db[s[j+1]].CreatedOn)
+				if time1.Before(time2){
+					s[j], s[j+1] = s[j+1], s[j]
+				}
+			}
+		}
+	case "oldest":
+		for i := range s {
+			for j := range i{
+				time1, _ := time.Parse(DateParseLayout, db[s[j]].CreatedOn)
+				time2, _ := time.Parse(DateParseLayout, db[s[j+1]].CreatedOn)
+				if time1.After(time2){
+					s[j], s[j+1] = s[j+1], s[j]
+				}
+			}
+		}
+		
+		// case "oldest":
+		// case "asc":
+		// case "desc":
+		// default:
+	}
+	return s
+}

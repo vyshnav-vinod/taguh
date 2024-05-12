@@ -53,7 +53,7 @@ func Cli() {
 
 			tags[tagName] = TagDbSchema{
 				Description: strings.Join(tagDesc, " "),
-				CreatedOn:   time.Now().Format("2006-01-02 15:04:05"),
+				CreatedOn:   time.Now().Format(DateParseLayout),
 			} // Append the new tag to the in-memory tags and write to JSON once again
 			WriteJsonToFile(TagsFileName, tags)
 
@@ -108,7 +108,7 @@ func Cli() {
 
 			db[fileName] = FileData{
 				Tags:      tagsFinal,
-				CreatedOn: time.Now().Format("2006-01-02 15:04:05"),
+				CreatedOn: time.Now().Format(DateParseLayout),
 			} // Append the new file to the in-memory db contents and then write to json once again
 			WriteJsonToFile(DbFileName, db)
 		}
@@ -205,8 +205,8 @@ func Cli() {
 						if !DataValidate(options, "option") {
 							HandleError(errors.New(fmt.Sprintf("option %s does not exists", options)))
 						} else {
-							// PerformOptions(options, &result)
-
+							result = PerformOptions(options, result)
+							
 						}
 					}
 					fmt.Printf("Found %d matching files\n", len(result))

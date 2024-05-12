@@ -13,6 +13,8 @@ const (
 	DbFileName   = "data/taguh.json"
 )
 
+const DateParseLayout = "2006-01-02 15:04:05"
+
 type FileData struct {
 
 	/*
@@ -103,7 +105,7 @@ func _createBaseTags(file string) {
 	for key, value := range baseTags {
 		tagsMap[key] = &TagDbSchema{
 			Description: value,
-			CreatedOn:   time.Now().Format("2006-01-02 15:04:05"),
+			CreatedOn:   time.Now().Format(DateParseLayout),
 		}
 	}
 	tagsJson, err := json.MarshalIndent(tagsMap, "", "	")
