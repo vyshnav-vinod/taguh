@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"os"
 	"runtime"
+	"slices"
 	"strings"
 )
 
@@ -70,9 +71,9 @@ func checkIfExists(f string) bool {
 
 func DataValidate(s string, t string) bool {
 	/*
-		Validate the file/tag
+		Validate the file/tag/option
 		s -> The content to validate
-		t -> The type of content (file or tag)
+		t -> The type of content (file or tag or option)
 	*/
 	// TODO: Return what tag was invalid
 	if strings.ToLower(t) == "file" {
@@ -107,6 +108,13 @@ func DataValidate(s string, t string) bool {
 			}
 		}
 		return false
+	} else if strings.ToLower(t) == "option" {
+		currOptions := []string{"newest", "oldest", "asc", "desc"}
+		if slices.Contains(currOptions, strings.ToLower(s)) {
+			return true
+		} else {
+			return false
+		}
 	} else {
 		panic(fmt.Sprintf("Type %s is not found. Please report!!", s))
 	}
@@ -128,15 +136,14 @@ func PrintOutput(path string, tags string, added string) {
 	fmt.Printf("\nFile path: %s\nTags: %s\nAdded on: %s\n", path, tags, added)
 }
 
-func PerformOptions(optionType string, s *any) {
-	// s -> Should only be either map[string]FileData or map[string]TagDbSchema
-	
-	switch optionType{
-	// case "newest":
-		
-	// case "oldest":
-	// case "asc":
-	// case "desc":
-	// default:
-	}
-}
+// func PerformOptions(optionType string, s *[]string) {
+// 	switch optionType {
+// 	case "newest":
+
+
+// 		// case "oldest":
+// 		// case "asc":
+// 		// case "desc":
+// 		// default:
+// 	}
+// }

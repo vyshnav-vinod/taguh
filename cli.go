@@ -178,7 +178,7 @@ func Cli() {
 			}
 		case "tag":
 			arg := args.Find.Arg
-			// options := args.Find.Options
+			options := args.Find.Options
 			var result []string
 
 			if !DataValidate(arg, "tag") {
@@ -200,6 +200,15 @@ func Cli() {
 				if len(result) == 1 {
 					PrintOutput(result[0], db[result[0]].Tags, db[result[0]].CreatedOn)
 				} else {
+					if len(options) != 0 {
+						// Do the sortings
+						if !DataValidate(options, "option") {
+							HandleError(errors.New(fmt.Sprintf("option %s does not exists", options)))
+						} else {
+							// PerformOptions(options, &result)
+
+						}
+					}
 					fmt.Printf("Found %d matching files\n", len(result))
 					for i := range result {
 						PrintOutput(result[i], db[result[i]].Tags, db[result[i]].CreatedOn)
