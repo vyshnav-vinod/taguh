@@ -27,13 +27,21 @@ type CmdFind struct {
 	Options string `arg:"positional" help:"If the type is tag, options are latest, oldest, asc and desc"`
 }
 
+type CmdRemove struct {
+	Type string   `arg:"positional" help:"Should be either file or tag"`
+	Arg  []string `arg:"positional" help:"The filename or the tag name to remove.If there is more than one, seperate with space"`
+}
+
 var args struct {
-	Add  *CmdAdd  `arg:"subcommand:add" help:"Add a file/tag to taguh"`
-	List *CmdList `arg:"subcommand:list" help:"List all files/tags added to taguh"`
-	Find *CmdFind `arg:"subcommand:find" help:"If a tag is given, list all the files associated with that tag. Else list the path of the filename and its tag(s)"`
+	Add    *CmdAdd    `arg:"subcommand:add" help:"Add a file/tag to taguh"`
+	List   *CmdList   `arg:"subcommand:list" help:"List all files/tags added to taguh"`
+	Find   *CmdFind   `arg:"subcommand:find" help:"If a tag is given, list all the files associated with that tag. Else list the path of the filename and its tag(s)"`
+	Remove *CmdRemove `arg:"subcommand:remove" help:"Remove the tag/file from taguh"`
 }
 
 func Cli() {
+	// TODO: remove cmd
+	// TODO: update cmd
 	arg.MustParse(&args)
 
 	switch {
@@ -217,6 +225,39 @@ func Cli() {
 			_subCommandUsage("list")
 		}
 
+	case args.Remove != nil:
+		removeType := strings.ToLower(args.Remove.Type)
+		removeArgs := args.Remove.Arg
+
+		if len(removeType) == 0 || len(removeArgs) == 0 {
+			_subCommandUsage("remove")
+		}
+		switch removeType {
+		case "file":
+			db := getDBVal(DbFileName)
+			for _, arg := range removeArgs {
+				hasDltd := false
+				for fname := range db {
+					if strings.EqualFold(filepath.Base(fname), filepath.Base(arg)) {
+						var userIn string
+						fmt.Printf("Do you want to delete %s [y/n]", fname)
+						fmt.Scan(&userIn)
+						if strings.ToLower(userIn) == "y" {
+							delete(db, fname)
+							hasDltd = true
+						}
+					}
+				}
+				if !hasDltd {
+					fmt.Printf("No files matched %s to delete\n", arg)
+				}
+			}
+		case "tag":
+		default:
+			fmt.Fprintf(os.Stderr, "Invalid type %s", removeType)
+			_subCommandUsage("list")
+
+		}
 	}
 }
 
